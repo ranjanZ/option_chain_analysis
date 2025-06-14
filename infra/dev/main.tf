@@ -13,32 +13,27 @@ provider "aws" {
 }
 
 
-resource "null_resource" "budget_check" {
-  triggers = {
-    budget_exists = <<EOT
-      #!/bin/bash
-      aws budgets describe-budgets --account-id 992382828607 \
-        --query 'Budgets[?Name==`monthly-budget`].Name' \
-        --output text | grep -q monthly-budget && echo "exists"
-    EOT
-  }
+
+
+resource "aws_instance" "nano_instance" {
+  ami           = "ami-0d1b5a8c13042c939"
+  instance_type = "t2.nano"
 }
 
-resource "aws_budgets_budget" "monthly-budget" {
-  count         = null_resource.budget_check.triggers.budget_exists == "exists" ? 0 : 1
-  name          = "monthly-budget"
-  budget_type   = "COST"
-  limit_amount  = "0.001"
-  limit_unit    = "USD"
-  time_unit     = "MONTHLY"
+
+
+resource "aws_ec2_tag" "nano_instance_tag" {
+  resource_id = aws_instance.nano_instance.id
+  key         = "Name"
+  value       = "Nano-EC2-Instance"
 }
 
 
 
 
-
-
-
+output "public_ip" {
+  value = aws_instance.nano_instance.public_ip
+}
 
 
 
