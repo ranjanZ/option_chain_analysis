@@ -6,3 +6,4 @@ pytz
 datetime
 streamlit-option-menu
 plotly
+pytest
