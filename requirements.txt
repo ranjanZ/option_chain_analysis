@@ -1,0 +1,8 @@
+streamlit
+pandas
+numpy
+pathlib
+pytz
+datetime
+streamlit-option-menu
+plotly
