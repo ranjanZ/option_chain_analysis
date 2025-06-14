@@ -4,6 +4,7 @@ import time
 import subprocess
 import pytz
 
+
 IST = pytz.timezone('Asia/Kolkata')
 
 def is_market_open():
