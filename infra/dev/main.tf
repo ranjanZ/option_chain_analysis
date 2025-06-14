@@ -38,7 +38,7 @@ resource "aws_budgets_budget" "monthly-budget" {
 
 
 
-}
+
 
 
 
