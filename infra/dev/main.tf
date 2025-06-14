@@ -11,21 +11,44 @@ provider "aws" {
   region = "us-east-2"
 }
 
-# Create the instance (Terraform will handle duplicates via state)
+
+#/*
+
+data "aws_instances" "existing_nano" {
+  filter {
+    name   = "tag:Name"
+    values = ["Nano-EC2-Instance"]  
+  }
+}
+
 resource "aws_instance" "nano_instance" {
   ami           = "ami-0d1b5a8c13042c939"
   instance_type = "t2.nano"
-
   tags = {
     Name = "Nano-EC2-Instance"
   }
+
   lifecycle {
-    prevent_destroy = true  # Blocks `terraform destroy` and accidental replaces
+    ignore_changes = [ami, instance_type]  # Prevents recreation if specs change
+    prevent_destroy = true                  # Blocks accidental deletion
   }
-
 }
 
-# Output the instance IP
-output "instance_ip" {
-  value = aws_instance.nano_instance.public_ip
+
+#*/
+
+
+
+
+
+/*
+resource "aws_instance" "nano_instance" {
+  count =1
+  ami           = "ami-0d1b5a8c13042c939"
+  instance_type = "t2.nano"
+  tags = {
+    Name = "Nano-EC2-Instance"
+  }
 }
+
+*/
