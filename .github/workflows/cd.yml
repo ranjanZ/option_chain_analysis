@@ -49,7 +49,7 @@ jobs:
       - name: Deploy via AWS Systems Manager (SSM)
         run: |
             sudo snap install jq
-            SCRIPT_CONTENT=$(jq -n --arg content "$(cat nfra/dev/deploy.sh)" '$content')
+            SCRIPT_CONTENT=$(jq -n --arg content "$(cat infra/dev/deploy.sh)" '$content')
             aws ssm send-command \
               --instance-ids ${{ steps.ec2-info.outputs.instance_id }} \
               --document-name "AWS-RunShellScript" \
