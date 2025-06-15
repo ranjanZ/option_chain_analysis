@@ -10,32 +10,36 @@ jobs:
   deploy-infra:
     runs-on: ubuntu-latest
     permissions:
-      actions: read
       contents: read
       id-token: write
 
     steps:
       - uses: actions/checkout@v4
-      
-      - uses: aws-actions/configure-aws-credentials@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
 
-      - name: Initialize Terraform with S3 backend
+      # Install Terraform first
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.0"  # Specify your desired version
+
+      # Initialize with S3 backend
+      - name: Initialize Terraform
         run: |
-          terraform -chdir=infra/dev init \
+          cd infra/dev
+          terraform init \
             -backend-config="bucket=s2ranjan" \
             -backend-config="key=terraform.tfstate" \
             -backend-config="region=us-east-2"
 
-      - name: Terraform Plan
-        id: plan
+      # Apply infrastructure changes
+      - name: Apply Infrastructure
         run: |
-          terraform -chdir=infra/dev plan -input=false -out=tfplan
-          echo "plan_status=$?" >> $GITHUB_OUTPUT
-
-      - name: Terraform Apply if Changes
-        if: steps.plan.outputs.plan_status == 2
-        run: terraform -chdir=infra/dev apply -input=false tfplan
+          cd infra/dev
+          terraform apply -auto-approve -input=false
