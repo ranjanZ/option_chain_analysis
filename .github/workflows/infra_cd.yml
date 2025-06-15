@@ -14,6 +14,7 @@ jobs:
       contents: read  # Required for checkout
       id-token: write # Required for OIDC if using AWS auth
 
+
     steps:
       - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v2
