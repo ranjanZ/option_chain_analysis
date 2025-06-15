@@ -1,0 +1,71 @@
+name: Project Deployment
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Infrastructure Deployment"]
+    types: [completed]
+
+env:
+  AWS_REGION: us-east-2
+  S3_BUCKET: s2ranjan
+  DOCKER_IMAGE: optionchain-app
+  EC2_INSTANCE_TAG: Nano-EC2-Instance
+
+
+
+jobs:
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get EC2 Instance Info
+        id: ec2-info
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=${{ env.EC2_INSTANCE_TAG }}" \
+            --query "Reservations[0].Instances[0].InstanceId" \
+            --output text)
+          echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
+
+          PUBLIC_IP=$(aws ec2 describe-instances \
+            --instance-ids $INSTANCE_ID \
+            --query "Reservations[0].Instances[0].PublicIpAddress" \
+            --output text)
+          echo "public_ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
+
+      - name: Deploy via AWS Systems Manager (SSM)
+        run: |
+            aws ssm send-command \
+            --instance-ids ${{ steps.ec2-info.outputs.instance_id }} \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=[
+              "sudo apt-get update",
+              "sudo apt-get install -y docker.io",
+              "sudo systemctl start docker",
+              "sudo usermod -aG docker ubuntu",
+              "docker stop ${{ env.DOCKER_IMAGE }} || true",
+              "docker rm ${{ env.DOCKER_IMAGE }} || true",
+              "aws s3 cp s3://${{ env.S3_BUCKET }}/docker-images/${{ env.DOCKER_IMAGE }}.tar.gz /tmp/",
+              "gunzip /tmp/${{ env.DOCKER_IMAGE }}.tar.gz",
+              "docker load -i /tmp/${{ env.DOCKER_IMAGE }}.tar",
+              "docker run -d -p 80:80 --name ${{ env.DOCKER_IMAGE }} ${{ env.DOCKER_IMAGE }}:latest"
+            ]'          
+        
+      - name: Verify Deployment
+        run: |
+          aws ssm send-command \
+            --instance-ids ${{ steps.ec2-info.outputs.instance_id }} \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=[
+              "docker ps",
+              "curl -I http://localhost:80 || true"
+            ]'
+
