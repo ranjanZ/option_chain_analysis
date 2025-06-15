@@ -2,10 +2,10 @@
 set -euo pipefail  # Strict error handling
 
 
-#AWS_REGION=us-east-2
-#S3_BUCKET=s2ranjan
-#DOCKER_IMAGE=optionchain-app
-#EC2_INSTANCE_TAG=Nano-EC2-Instance
+AWS_REGION=us-east-2
+S3_BUCKET=s2ranjan
+DOCKER_IMAGE=optionchain-app
+EC2_INSTANCE_TAG=Nano-EC2-Instance
 
 
 # Log everything for debugging
@@ -40,17 +40,17 @@ docker rm optionchain-app || true
 
 # Image deployment
 echo "Loading Docker image..."
-aws s3 cp "s3://${env.S3_BUCKET}/${env.DOCKER_IMAGE}.tar.gz" /tmp/
-gunzip -c "/tmp/${env.DOCKER_IMAGE}.tar.gz" | docker load
+aws s3 cp "s3://${S3_BUCKET}/${DOCKER_IMAGE}.tar.gz" /tmp/
+gunzip -c "/tmp/${DOCKER_IMAGE}.tar.gz" | docker load
 #rm "/tmp/${DOCKER_IMAGE}.tar.gz"
 
 # Container startup
 echo "Starting new container..."
 docker run -d \
   -p 80:8501 \
-  --name "${env.DOCKER_IMAGE}" \
+  --name "${DOCKER_IMAGE}" \
   --restart unless-stopped \
-  "${env.DOCKER_IMAGE}:latest"
+  "${DOCKER_IMAGE}:latest"
 
 echo "=== Deployment complete ==="
 
