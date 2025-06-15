@@ -1,4 +1,4 @@
-ROM ubuntu:22.04
+FROM ubuntu:22.04
 
 # Install Python, pip, and other dependencies
 RUN apt-get update && apt-get install -y \
