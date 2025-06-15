@@ -8,3 +8,11 @@ data/
 __pycache__/
 *.py[cod]
 *$py.class
+
+
+
+
+infra/dev/.terraform*
+infra/dev/*.tfstate*
+infra/dev/*.backup
+

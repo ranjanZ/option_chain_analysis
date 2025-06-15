@@ -18,13 +18,14 @@ jobs:
           aws-region: us-east-2
       - uses: hashicorp/setup-terraform@v2
 
-      # Cache Terraform state to avoid duplicates
-      - name: Cache Terraform state
-        uses: actions/cache@v3
-        id: tf-state-cache
+
+      - name: Download State Artifact
+        uses: actions/download-artifact@v3
         with:
-          path: infra/dev/terraform.tfstate
-          key: tf-state-${{ github.run_id }}
+          name: terraform-state
+          path: infra/dev/
+        continue-on-error: true
+
 
       - name: Initialize Terraform
         run: terraform -chdir=infra/dev init
@@ -32,10 +33,11 @@ jobs:
       - name: Apply Infrastructure
         run: terraform -chdir=infra/dev apply -auto-approve -input=false
 
-      # Optionally, upload the latest state after apply
-      - name: Upload latest Terraform state
-        if: always()
-        uses: actions/upload-artifact@v4
+
+      - name: Upload State Artifact
+        uses: actions/upload-artifact@v3
         with:
           name: terraform-state
-          path: infra/dev/terraform.tfstate
+          path: |
+            terraform.tfstate
+            terraform.tfstate.backup
