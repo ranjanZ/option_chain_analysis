@@ -51,6 +51,7 @@ resource "aws_instance" "nano_instance" {
   instance_type = "t2.nano"
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.name  # << Critical line
 
+  user_data = file("${path.module}/start_script.sh")
   tags = {
     Name = "Nano-EC2-Instance"
   }
