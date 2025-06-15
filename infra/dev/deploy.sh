@@ -42,7 +42,7 @@ docker rm optionchain-app || true
 echo "Loading Docker image..."
 aws s3 cp "s3://${S3_BUCKET}/${DOCKER_IMAGE}.tar.gz" /tmp/
 gunzip -c "/tmp/${DOCKER_IMAGE}.tar.gz" | docker load
-rm "/tmp/${DOCKER_IMAGE}.tar.gz"
+#rm "/tmp/${DOCKER_IMAGE}.tar.gz"
 
 # Container startup
 echo "Starting new container..."

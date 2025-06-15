@@ -45,13 +45,15 @@ jobs:
             --output text)
           echo "public_ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
 
+
       - name: Deploy via AWS Systems Manager (SSM)
         run: |
-            SCRIPT_CONTENT=$(cat infra/dev/deploy.sh)
+            sudo snap install jq
+            SCRIPT_CONTENT=$(jq -n --arg content "$(cat nfra/dev/deploy.sh)" '$content')
             aws ssm send-command \
               --instance-ids ${{ steps.ec2-info.outputs.instance_id }} \
               --document-name "AWS-RunShellScript" \
-              --parameters "commands=[$(echo "$SCRIPT_CONTENT" | jq -s -R .)]" \
+              --parameters "{\"commands\":[$SCRIPT_CONTENT]}" \
               --cloud-watch-output-config 'CloudWatchOutputEnabled=true' \
               --output text \
               --query "Command.CommandId"

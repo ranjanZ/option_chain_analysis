@@ -59,11 +59,46 @@ resource "aws_iam_instance_profile" "ec2_profile" {
   role = aws_iam_role.ec2_ssm_role.name
 }
 
+
+
+
+
+
+resource "aws_security_group" "web_access" {
+  name        = "allow_http"
+  description = "Allow HTTP inbound traffic"
+
+  ingress {
+    description = "HTTP from anywhere"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "allow_http"
+  }
+}
+
+
+
+
 # 4. Update your EC2 instance to use this profile
 resource "aws_instance" "nano_instance" {
   ami           = "ami-0d1b5a8c13042c939"
   instance_type = "t2.nano"
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.name  # << Critical line
+
+  # Add the security group here
+  vpc_security_group_ids = [aws_security_group.web_access.id]
 
   user_data = file("${path.module}/start_script.sh")
   tags = {
