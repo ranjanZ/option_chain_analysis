@@ -18,6 +18,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -53,7 +57,6 @@ jobs:
               --query "Command.CommandId"
             
             echo "Deployment command sent. Check AWS Systems Manager for output."
-
         
       - name: Verify Deployment
         run: |
