@@ -39,6 +39,20 @@ resource "aws_iam_role_policy_attachment" "ssm" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
+
+# 3. Attach S3 read-only policy (add this new resource)
+resource "aws_iam_role_policy_attachment" "s3_read" {
+  role       = aws_iam_role.ec2_ssm_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+}
+
+#For full S3 access, use this instead:
+resource "aws_iam_role_policy_attachment" "s3_full" {
+  role       = aws_iam_role.ec2_ssm_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
+
 # 3. Create an instance profile
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "EC2-SSM-Profile"

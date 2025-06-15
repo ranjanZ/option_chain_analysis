@@ -24,30 +24,30 @@ jobs:
       - name: Run tests
         run: python3 -m pytest tests/
 
-          #  build:
-          #    needs: test
-          #    runs-on: ubuntu-latest
-          #    steps:
-          #      - uses: actions/checkout@v4
-          #      
-          #      - name: Build the Docker image
-          #        run: |
-          #          docker build -t optionchain-app:latest .
-          #          docker save optionchain-app:latest > optionchain-app.tar
-          #          gzip optionchain-app.tar
-          #      
-          #
-          #      - name: Configure AWS Credentials[for S3]
-          #        uses: aws-actions/configure-aws-credentials@v2
-          #        with:
-          #          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          #          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          #          aws-region: us-east-2
-          #          
-          #      - name: Upload to S3
-          #        run: |
-          #          aws s3 cp optionchain-app.tar.gz s3://s2ranjan/
-          #          aws s3 ls s3://s2ranjan/
-          #
-          #
-          #
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build the Docker image
+        run: |
+          docker build -t optionchain-app:latest .
+          docker save optionchain-app:latest > optionchain-app.tar
+          gzip optionchain-app.tar
+      
+
+      - name: Configure AWS Credentials[for S3]
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+          
+      - name: Upload to S3
+        run: |
+          aws s3 cp optionchain-app.tar.gz s3://s2ranjan/
+          aws s3 ls s3://s2ranjan/
+
+
+

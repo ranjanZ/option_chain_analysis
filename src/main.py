@@ -30,7 +30,7 @@ def run_programs():
 
 def main():
     processes = None
-    
+    print("running  main program ...") 
     while True:
         current_time = datetime.datetime.now(IST).strftime("%H:%M:%S")
         
