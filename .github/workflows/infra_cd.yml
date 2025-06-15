@@ -38,6 +38,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: terraform-state
-          path: |
-            terraform.tfstate
-            terraform.tfstate.backup
+          path: infra/dev/terraform.tfstate*  # The * captures both files
+          if-no-files-found: error  # Fail if state files are missing
+          retention-days: 7
+
