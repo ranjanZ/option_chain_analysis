@@ -43,21 +43,17 @@ jobs:
 
       - name: Deploy via AWS Systems Manager (SSM)
         run: |
+            SCRIPT_CONTENT=$(cat infra/dev/deploy.sh)
             aws ssm send-command \
-            --instance-ids ${{ steps.ec2-info.outputs.instance_id }} \
-            --document-name "AWS-RunShellScript" \
-            --parameters 'commands=[
-              "sudo apt-get update",
-              "sudo apt-get install -y docker.io",
-              "sudo systemctl start docker",
-              "sudo usermod -aG docker ubuntu",
-              "docker stop ${{ env.DOCKER_IMAGE }} || true",
-              "docker rm ${{ env.DOCKER_IMAGE }} || true",
-              "aws s3 cp s3://${{ env.S3_BUCKET }}/docker-images/${{ env.DOCKER_IMAGE }}.tar.gz /tmp/",
-              "gunzip /tmp/${{ env.DOCKER_IMAGE }}.tar.gz",
-              "docker load -i /tmp/${{ env.DOCKER_IMAGE }}.tar",
-              "docker run -d -p 80:80 --name ${{ env.DOCKER_IMAGE }} ${{ env.DOCKER_IMAGE }}:latest"
-            ]'          
+              --instance-ids ${{ steps.ec2-info.outputs.instance_id }} \
+              --document-name "AWS-RunShellScript" \
+              --parameters "commands=[$(echo "$SCRIPT_CONTENT" | jq -s -R .)]" \
+              --cloud-watch-output-config 'CloudWatchOutputEnabled=true' \
+              --output text \
+              --query "Command.CommandId"
+            
+            echo "Deployment command sent. Check AWS Systems Manager for output."
+
         
       - name: Verify Deployment
         run: |

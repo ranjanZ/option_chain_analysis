@@ -7,3 +7,14 @@ nd deply yourself
 use docker
 
 
+
+Helpfull 
+add IAMFullAccess
+
+
+login to ec2 as ubuntu:
+aws ssm start-session --target $INSTANCE_ID --document-name AWS-StartInteractiveCommand --parameters command="sudo su - ubuntu"
+
+
+
+

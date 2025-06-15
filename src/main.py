@@ -9,8 +9,8 @@ IST = pytz.timezone('Asia/Kolkata')
 
 def is_market_open():
     now = datetime.datetime.now(IST)
-
-    if now.weekday() >= 6:
+    return(True)
+    if now.weekday() >= 5:
         return False
         
 

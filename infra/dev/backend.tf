@@ -1,8 +1,7 @@
 terraform {
   backend "s3" {
-    # These will be overridden by -backend-config during init
-    bucket         = ""
-    key            = ""
-    region         = ""
+    bucket         = "s2ranjan"               # Your S3 bucket name
+    key            = "terraform.tfstate"      # Path to store state file
+    region         = "us-east-2"              # AWS region
   }
 }
