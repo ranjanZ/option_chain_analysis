@@ -41,8 +41,9 @@ jobs:
                 core.setOutput('artifact_exists', 'true');
               }
             } catch (error) {
-              core.setFailed('Error fetching artifacts: ' + error.message);
+              core.setFailed('Error fetching artifacts:' + error.message);
             }
+
 
       # Download the artifact if it exists
       - name: Download State Artifact
