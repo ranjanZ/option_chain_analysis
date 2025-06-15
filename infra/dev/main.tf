@@ -14,6 +14,56 @@ provider "aws" {
 
 
 
+
+# 1. Create IAM role for EC2
+resource "aws_iam_role" "ec2_ssm_role" {
+  name = "EC2-SSM-Role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+# 2. Attach the SSM policy
+resource "aws_iam_role_policy_attachment" "ssm" {
+  role       = aws_iam_role.ec2_ssm_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+# 3. Create an instance profile
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "EC2-SSM-Profile"
+  role = aws_iam_role.ec2_ssm_role.name
+}
+
+# 4. Update your EC2 instance to use this profile
+resource "aws_instance" "nano_instance" {
+  ami           = "ami-0d1b5a8c13042c939"
+  instance_type = "t2.nano"
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name  # << Critical line
+
+  tags = {
+    Name = "Nano-EC2-Instance"
+  }
+}
+
+
+
+
+
+
+
+
+/*
 resource "aws_instance" "nano_instance" {
   count         = 1
   ami           = "ami-0d1b5a8c13042c939"  # Ubuntu 20.04 LTS
@@ -31,32 +81,6 @@ resource "aws_instance" "nano_instance" {
     ignore_changes = [ami, instance_type, user_data]  # Preserve user_data changes
   }
 }
-
-
-
-
-
-
-/*
-
-resource "aws_instance" "nano_instance" {
-  # Only create if NO matching instance exists
-  count 	= 1  
-  ami           = "ami-0d1b5a8c13042c939"
-  instance_type = "t2.nano"
-  
-  tags = {
-    Name = "Nano-EC2-Instance"
-  }
-
-  lifecycle {
-    prevent_destroy = true  # Extra protection against deletion
-    ignore_changes = [ami, instance_type]  # Prevents recreation if specs change
-  }
-}
-
-
-
 
 */
 
