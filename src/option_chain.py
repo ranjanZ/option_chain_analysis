@@ -9,7 +9,10 @@ from pytz import timezone
 import pathlib
 from utils import *
 directory = str(pathlib.Path(__file__).parent.resolve())
+from pathlib import Path
 
+data_dir = Path("data/")
+data_dir.mkdir(exist_ok=True)  # Creates directory if missing
 
 
 class OptionChain():
@@ -120,6 +123,7 @@ class OptionChain():
 
 
 def run_infinite():
+
     """
     strike_price_path=directory+"/data/strike_price.csv"
     ce_oi_data_path=directory+"/data/ce_oi_data.npy"
